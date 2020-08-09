@@ -5,7 +5,9 @@ import json
 
 test = ["dear customer, we are pleased to inform  viagra nigeria  you that the invoice for your ipad if attached to this email, best regards, your apple-team", 
         "dear customer, we are pleased to inform you that the invoice for your ipad if attached to this email, best regards, your apple-team",
-        "enlarge your penis in no time with this ipad"]
+        "enlarge your penis in no time with this ipad",
+        "hello we are going to the cinema this weekend would you like to come with us?",
+        "hello the boat you are looking for is for sale right now"]
 
 
 bag = bw.BagWords("en")
@@ -34,5 +36,5 @@ for i in range(len(test)):
         output["spam"].append(test[i])
 
 
-with open("results.json", "w") as file:
-        json.dump(output, file, indent=4)
+with open("results.json", "w", encoding="utf-8") as file:
+        json.dump(output, file, ensure_ascii=False, indent=4)

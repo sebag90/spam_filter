@@ -9,11 +9,11 @@ in results.json
 
 ## Dependencies:
 - Natural Language Toolkit: https://www.nltk.org/
+- numpy: https://numpy.org/
+
 
 ### Install:
 pip3 install -r requirements.txt
-
-
 
 
 ### Stopwords:

@@ -12,13 +12,12 @@ class BagWords:
 
 
     def __init__(self, language):
-        self.language = language
-        self.term_matrix = []
-        self.stopwords = set()
-        self.texts = []
-        self.matrix_terms = []
-        self.input_number = 0
-        self.y = []
+        self.__language = language
+        self.__stopwords = set()
+        self.__texts = []
+        self.__matrix_terms = []
+        self.__X = []
+        self.__y = []
         self.__retrieve_texts("ham")
         self.__retrieve_texts("spam")
         self.__collect_stopwords()
@@ -53,11 +52,11 @@ class BagWords:
             with open(path, "r") as file:
                 my_string = file.read()
                 cleaned = self.__clean_string(my_string)
-                self.texts.append(cleaned)
+                self.__texts.append(cleaned)
                 if directory == "ham":
-                    self.y.append(0)  
+                    self.__y.append(0)  
                 else:
-                    self.y.append(1)
+                    self.__y.append(1)
         
 
 
@@ -66,10 +65,10 @@ class BagWords:
 
         with open("stopwords-iso.json") as stopwords:
             data = json.load(stopwords)
-        for word in data[self.language]:
+        for word in data[self.__language]:
             newword = word.replace(" ", "")
             newword2 = newword.replace("\n", "")
-            self.stopwords.add(newword2.lower())
+            self.__stopwords.add(newword2.lower())
         
 
 
@@ -88,11 +87,11 @@ class BagWords:
 
         # if word is not a stop word, save it in a new list (vector)
         for something in splits:
-            if something.lower() not in self.stopwords:
+            if something.lower() not in self.__stopwords:
                 cleaned.append(something)
         
         # stem
-        stemmer = SnowballStemmer(languages[self.language])
+        stemmer = SnowballStemmer(languages[self.__language])
         for element in cleaned:
             stemmed.append(stemmer.stem(element))
 
@@ -101,11 +100,10 @@ class BagWords:
 
 
     # create matrix term list
-    def __create_matrix_terms(self, _matrix_terms, _article):
-        for term in _article:
-            if term not in _matrix_terms:
-                _matrix_terms.append(term)
-        self.matrix_terms = _matrix_terms
+    def __create_matrix_terms(self, sentence):
+        for term in sentence:
+            if term not in self.__matrix_terms:
+                self.__matrix_terms.append(term)
 
 
 
@@ -114,7 +112,7 @@ class BagWords:
     def __calculate_vec(self, sentence_vector):
         string_vec = []
         # iterate over list of all tokens and set vector entry to 0
-        for single_term in self.matrix_terms:
+        for single_term in self.__matrix_terms:
             counter = 0
             # iterate over tokens in sentence, if token is present append the number of occurencies 
             for term in sentence_vector:
@@ -130,41 +128,46 @@ class BagWords:
 
 
     def compute_matrix(self):
-        self.term_matrix = []
+        self.__X = []
         # iterate over texts, if they are not list (aka not stemmed, stem them)
-        for i in range(len(self.texts)):
-            if type(self.texts[i]) != list:
-                self.texts[i] = self.__str_2_vec(self.texts[i])
-                self.__create_matrix_terms(self.matrix_terms, self.texts[i])
+        for i in range(len(self.__texts)):
+            if not isinstance(self.__texts[i], list):
+                self.__texts[i] = self.__str_2_vec(self.__texts[i])
+                self.__create_matrix_terms(self.__texts[i])
         # now calculate the TF vector of each sentence given the complete token list
-        for key in self.texts:
-            vec = self.__calculate_vec(key)
-            self.term_matrix.append(vec)
+        for line in self.__texts:
+            vec = self.__calculate_vec(line)
+            self.__X.append(vec)
+
 
 
     # add a sentence to the matrix, this will compute the matrix again
-    def add_sentence(self, sentence, label):
+    def add_sentence(self, sentence, label = None):
         cleaned = self.__clean_string(sentence)
-        self.texts[self.input_number] = cleaned
-        self.input_number += 1
-        self.y.append(label)
+        self.__texts.append(cleaned)   
+        if label != None:
+            self.__y.append(label)
         self.compute_matrix()
 
 
 
     def print_matrix(self):
-        for i in self.term_matrix:
+        for i in self.__X:
             print(i)
-
+        
 
 
     def save(self):
-        return self.term_matrix, self.y
+        return self.__X, self.__y
 
 
 
 if __name__ == "__main__":
     bag = BagWords("en")
     bag.compute_matrix()
+    bag.print_matrix()
+
+    print("\n\n")
+    bag.add_sentence("sigarette", 0)
     bag.print_matrix()
     

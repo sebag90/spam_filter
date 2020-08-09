@@ -5,8 +5,6 @@ import math
 import json
 from nltk.stem.snowball import SnowballStemmer
 
-# TODO:
-# self.texts a list, order is important
 
 
 
@@ -17,13 +15,14 @@ class BagWords:
         self.language = language
         self.term_matrix = []
         self.stopwords = set()
-        self.texts = {}
+        self.texts = []
         self.matrix_terms = []
         self.input_number = 0
         self.y = []
         self.__retrieve_texts("ham")
         self.__retrieve_texts("spam")
         self.__collect_stopwords()
+
         
 
 
@@ -54,7 +53,7 @@ class BagWords:
             with open(path, "r") as file:
                 my_string = file.read()
                 cleaned = self.__clean_string(my_string)
-                self.texts[filename + directory] = cleaned
+                self.texts.append(cleaned)
                 if directory == "ham":
                     self.y.append(0)  
                 else:
@@ -112,13 +111,13 @@ class BagWords:
 
     # given a list of tokens in a sentence and a list of all tokens in all texts, 
     # this method computes the single sentence vector
-    def __calculate_vec(self, key):
+    def __calculate_vec(self, sentence_vector):
         string_vec = []
         # iterate over list of all tokens and set vector entry to 0
         for single_term in self.matrix_terms:
             counter = 0
             # iterate over tokens in sentence, if token is present append the number of occurencies 
-            for term in self.texts[key]:
+            for term in sentence_vector:
                 if single_term == term:
                     counter = counter + 1
             string_vec.append(counter)
@@ -132,10 +131,12 @@ class BagWords:
 
     def compute_matrix(self):
         self.term_matrix = []
-        for key in self.texts:
-            if type(self.texts[key]) != list:
-                self.texts[key] = self.__str_2_vec(self.texts[key])
-                self.__create_matrix_terms(self.matrix_terms, self.texts[key])
+        # iterate over texts, if they are not list (aka not stemmed, stem them)
+        for i in range(len(self.texts)):
+            if type(self.texts[i]) != list:
+                self.texts[i] = self.__str_2_vec(self.texts[i])
+                self.__create_matrix_terms(self.matrix_terms, self.texts[i])
+        # now calculate the TF vector of each sentence given the complete token list
         for key in self.texts:
             vec = self.__calculate_vec(key)
             self.term_matrix.append(vec)
@@ -152,7 +153,6 @@ class BagWords:
 
 
     def print_matrix(self):
-        print(self.matrix_terms)
         for i in self.term_matrix:
             print(i)
 
@@ -160,6 +160,7 @@ class BagWords:
 
     def save(self):
         return self.term_matrix, self.y
+
 
 
 if __name__ == "__main__":

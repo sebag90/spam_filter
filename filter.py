@@ -34,6 +34,5 @@ for i in range(len(test)):
         output["spam"].append(test[i])
 
 
-
-for key in output:
-    print(key, output[key])
+with open("results.json", "w") as file:
+        json.dump(output, file, indent=4)

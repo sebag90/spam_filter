@@ -24,7 +24,6 @@ class BagWords:
 
         
 
-
     # manual string manipulation
     def __clean_string(self, _input_str):
         cln_str = _input_str.replace("[", " ")
@@ -170,4 +169,3 @@ if __name__ == "__main__":
     print("\n\n")
     bag.add_sentence("sigarette", 0)
     bag.print_matrix()
-    

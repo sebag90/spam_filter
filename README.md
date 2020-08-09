@@ -16,3 +16,9 @@ pip3 install -r requirements.txt
 
 ### Stopwords:
 Source: https://github.com/stopwords-iso/stopwords-iso
+
+
+## Use:
+Simply copy your spam and ham (not spam) email in separate files (ideally one email per file) and put them in the 
+input directory. In the same manner, save the emails which you would like to classify in the to_classify directory 
+and run filter.py

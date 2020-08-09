@@ -1,1 +1,1 @@
-# spam_filter
+# Spam filter based on a bag of words and a multinomial naive bayes classifier

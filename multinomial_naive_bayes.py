@@ -18,7 +18,7 @@ class MultinomialNaiveBayes:
                  "sum1" : len(X[0])}
 
 
-        # calculate number of occurencies per class ans total sum of occurencies for each label
+        # calculate number of occurencies per class and total sum of occurencies for each label
         for i in range(len(X)):
             for j in range(len(X[i])):
             
@@ -31,10 +31,10 @@ class MultinomialNaiveBayes:
         
         
         # calculate feature probability
-        for _ in probs[0]:
-            self.feature_probs_0.append((_ + 1)/probs["sum0"])
-        for _ in probs[1]:
-            self.feature_probs_1.append((_+1)/probs["sum1"])
+        for i in probs[0]:
+            self.feature_probs_0.append((i + 1)/probs["sum0"])
+        for i in probs[1]:
+            self.feature_probs_1.append((i+1)/probs["sum1"])
 
 
 

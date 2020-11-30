@@ -4,8 +4,6 @@ import json
 import os
 
 
-# TODO: restructure, read files here and pass sentences to bag
-
 
 def retrieve_texts(path):
     texts = []
@@ -37,7 +35,7 @@ def main():
         bag.add_sentence(new)
        
     bag.compute_matrix()
-    
+
     X_train = bag.matrix[:len(y_train)]
     X = bag.matrix[len(y_train):]
     

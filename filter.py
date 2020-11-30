@@ -7,42 +7,55 @@ import os
 # TODO: restructure, read files here and pass sentences to bag
 
 
-def retrieve_texts():
-    emails = []
-    for filename in os.listdir("./input/to_classify"):
-        path = "./input/to_classify/" + filename
-        with open(path, "r") as file:
+def retrieve_texts(path):
+    texts = []
+    for filename in os.listdir(path):
+        path_to_file = f"{path}/{filename}"
+
+        with open(path_to_file, "r") as file:
             my_string = file.read()
-            emails.append(my_string)
-    return emails
+            texts.append(my_string)
+    return texts
                 
 
 def main():
-    test = retrieve_texts()
 
+    ham = retrieve_texts("input/ham")
+    spam = retrieve_texts("input/spam")
+    y_train = [0 for i in ham] + [1 for j in spam]
+    train_data = ham + spam
+
+    
     bag = bw.BagWords("en")
-    bag.compute_matrix()
+    
+    for text in train_data:
+        bag.add_sentence(text)
 
-    for new in test:
+    to_classify = retrieve_texts("input/to_classify")
+
+    for new in to_classify:
         bag.add_sentence(new)
+       
+    bag.compute_matrix()
+    
+    X_train = bag.matrix[:len(y_train)]
+    X = bag.matrix[len(y_train):]
+    
+    nb = mnb.MultinomialNaiveBayes()
 
-    X, y = bag.save()
-    X_train = X[:-len(test)]
-    X_test = X[len(X_train):]
-
-    multiNB = mnb.MultinomialNaiveBayes()
-    multiNB.fit(X_train, y)
-    results = multiNB.predict(X_test)
+    nb.fit(X_train, y_train)
+    results = nb.predict(X)
+    
 
     output = {"spam": [],
-            "not spam": []}
+              "not spam": []}
 
-    for i in range(len(test)):
-        if results[i] == 0:
-            output["not spam"].append(test[i])
+
+    for text, label in zip(to_classify, results):
+        if label == 0:
+            output["not spam"].append(text)
         else:
-            output["spam"].append(test[i])
-
+            output["spam"].append(text)
 
     with open("results.json", "w", encoding="utf-8") as file:
             json.dump(output, file, ensure_ascii=False, indent=4)

@@ -116,8 +116,8 @@ class BagWords:
                 self.create_vocabulary(self.texts[i])
         
         # calculate matrix
-        for line in self.texts:
-            vec = self.calculate_vec(line)
+        for text in self.texts:
+            vec = self.calculate_vec(text)
             self.matrix.append(vec)
 
 
@@ -129,13 +129,39 @@ class BagWords:
         self.texts.append(cleaned)
 
 
-    # TODO: function for TF-IDF
-        # ML - ue2
+    def tf_idf(self):
+        """
+        calculate inverse term frequency
+        IDF = 1 + log(N/nj)
 
-    # TODO: function to calculate sentence similarity
-        # add sentence
-        # calculate matrix
-        # calculate every dot product, report highest
+        N = number of total vectors 
+        nj = number of vectors containing the word
+        """
+
+        x = np.array(self.matrix)
+        
+        # number of vectors
+        N = 10*np.ones(x.shape)       
+        nj = (x>0).sum(axis=0) * np.ones(x.shape)
+
+        tfidf = x * (1 + np.log(N/nj))
+
+        self.matrix = tfidf
+
+
+    def similarity(self, new_sentence):
+        cleaned = self.clean_string(new_sentence)
+        tokens = self.str_2_vec(cleaned)
+        self.create_vocabulary(tokens)
+        question_vector = self.calculate_vec(tokens)
+        self.compute_matrix()    
+
+        result = np.matmul(self.matrix, question_vector)
+    
+        return np.argmax(result)
+
+
+
 
 if __name__ == "__main__":
     bag = BagWords("en")
@@ -150,5 +176,8 @@ if __name__ == "__main__":
         bag.add_sentence(text)
 
     bag.compute_matrix()
+
+    print(bag.similarity("expensive car"))
+
     for i in bag.matrix:
         print(i)

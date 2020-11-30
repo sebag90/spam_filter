@@ -17,11 +17,11 @@ class MultinomialNaiveBayes:
         self.prior = dict(zip(classes, counts/y.shape[0]))
 
         for cl in classes:
-            class_sum_vec = X[y==cl].sum(axis=0) + alpha
+            class_sum_vec = X[y==cl].sum(axis=0) 
             added_alpha = (X.shape[1] * alpha )
-            class_total_sum = X[y==cl].sum(axis=0).sum()
+            class_total_sum = class_sum_vec.sum()
             
-            self.feature_probabilities[cl] = class_sum_vec / ( added_alpha + class_total_sum)
+            self.feature_probabilities[cl] = (class_sum_vec + alpha) / ( added_alpha + class_total_sum)
         
 
     def predict(self, X):
@@ -38,19 +38,16 @@ class MultinomialNaiveBayes:
 
 
 if __name__ == "__main__":
-    X =[[1, 1, 0, 1],
-        [1, 2, 2, 0],
-        [1, 1, 1, 0],
-        [1, 1, 0, 0],
-        [1, 0, 0, 0],
-        [1, 0, 0, 0],
-        [1, 0, 0, 0],
-        [1, 0, 0, 0],
-        [1, 0, 0, 1],
-        [0, 0, 0, 1],
-        [0, 0, 0, 1],
-        [1, 1, 0, 1]]
-    y = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1]
+    from sklearn.datasets import load_iris
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import confusion_matrix
+
+    data = load_iris()
+    X = data["data"]
+    y = data["target"]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
     nb = MultinomialNaiveBayes()
-    nb.fit(X, y)
-    print(nb.predict([[0, 0, 1, 4], [1, 1, 0, 0]]))
+    nb.fit(X_train, y_train)
+    y_pred = nb.predict(X_test)
+    print(confusion_matrix(y_test, y_pred))

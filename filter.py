@@ -3,6 +3,10 @@ import multinomial_naive_bayes as mnb
 import json
 import os
 
+
+# TODO: restructure, read files here and pass sentences to bag
+
+
 def retrieve_texts():
     emails = []
     for filename in os.listdir("./input/to_classify"):

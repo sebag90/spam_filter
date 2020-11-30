@@ -1,80 +1,48 @@
 #!/usr/bin/python3
 
 import os
+import re
 import math
 import json
+import string
+import numpy as np
 from nltk.stem.snowball import SnowballStemmer
-
-
 
 
 class BagWords:
 
-
     def __init__(self, language):
-        self.__language = language
-        self.__stopwords = set()
-        self.__texts = []
-        self.__matrix_terms = []
-        self.__X = []
-        self.__y = []
-        self.__retrieve_texts("ham")
-        self.__retrieve_texts("spam")
-        self.__collect_stopwords()
-
-        
-
-    # manual string manipulation
-    def __clean_string(self, _input_str):
-        cln_str = _input_str.replace("[", " ")
-        cln_str = cln_str.replace("]", " ")
-        cln_str = cln_str.replace("(", " ")
-        cln_str = cln_str.replace(")", " ")
-        cln_str = cln_str.replace(", ", " ")
-        cln_str = cln_str.replace(". ", " ")
-        cln_str = cln_str.replace("; ", " ")
-        cln_str = cln_str.replace(": ", " ")
-        cln_str = cln_str.replace("?", " ")
-        cln_str = cln_str.replace("!", " ")
-        cln_str = cln_str.replace("""'""", " ")
-        cln_str = cln_str.replace('"', " ")
-        cln_str = cln_str.replace("""„""", " ")
-        cln_str = cln_str.replace("""“""", " ")
-        return cln_str
-
-
-
-    # retrieve articles
-    def __retrieve_texts(self, directory):
-        for filename in os.listdir("./input/" + directory):
-            path = "./input/" + directory + "/" + filename
-            with open(path, "r") as file:
-                my_string = file.read()
-                cleaned = self.__clean_string(my_string)
-                self.__texts.append(cleaned)
-                if directory == "ham":
-                    self.__y.append(0)  
-                else:
-                    self.__y.append(1)
-        
-
-
-    # collect stop words after removing whitespaces and /n
-    def __collect_stopwords(self):
+        self.language = language
+        self.vocabulary = []
+        self.matrix = []
+        self.texts = []
 
         with open("stopwords-iso.json") as stopwords:
-            data = json.load(stopwords)
-        for word in data[self.__language]:
-            newword = word.replace(" ", "")
-            newword2 = newword.replace("\n", "")
-            self.__stopwords.add(newword2.lower())
+            stopwords = json.load(stopwords)
+
+        self.stopwords = set(stopwords[language])
+
+    
+    def clean_string(self, input_str):
+        """
+        remove punctuation
+        """
+        punctuation = [i for i in string.punctuation] + ['„', '“', '”', '–']
         
+        for char in punctuation:
+            input_str = input_str.replace(char, " ")
+
+        return input_str
 
 
-    # remove stopwords and stem a string. The result is a vector of tokens
-    def __str_2_vec(self, _input_string):
+    def str_2_vec(self, input_string):
+        """
+        remove stopwords
+        stem the sentence
+        return a vector (list) of tokens
+        """
         # extract single words
-        splits = _input_string.split()
+        splits = input_string.split()
         cleaned = []
         stemmed = []
 
@@ -85,40 +53,49 @@ class BagWords:
         }
 
         # if word is not a stop word, save it in a new list (vector)
-        for something in splits:
-            if something.lower() not in self.__stopwords:
-                cleaned.append(something)
+        for word in splits:
+            if word.lower() not in self.stopwords:
+                cleaned.append(word)
         
         # stem
-        stemmer = SnowballStemmer(languages[self.__language])
+        stemmer = SnowballStemmer(languages[self.language])
         for element in cleaned:
             stemmed.append(stemmer.stem(element))
 
         return stemmed
 
 
-
     # create matrix term list
-    def __create_matrix_terms(self, sentence):
+    def create_vocabulary(self, sentence):
+        """
+        takes as input a sentence in form of a stemmed vector
+        adds new tokens to the vocabulary
+        """
         for term in sentence:
-            if term not in self.__matrix_terms:
-                self.__matrix_terms.append(term)
+            if term not in self.vocabulary:
+                self.vocabulary = np.append(self.vocabulary, term)
 
 
+    def calculate_vec(self, sentence_vector):
+        """
+        given a sentence in the form of a list of stemmed tokens
+        this method calculates a term frequency vector based on 
+        the vocabulary.
 
-    # given a list of tokens in a sentence and a list of all tokens in all texts, 
-    # this method computes the single sentence vector
-    def __calculate_vec(self, sentence_vector):
-        string_vec = []
-        # iterate over list of all tokens and set vector entry to 0
-        for single_term in self.__matrix_terms:
-            counter = 0
-            # iterate over tokens in sentence, if token is present append the number of occurencies 
-            for term in sentence_vector:
-                if single_term == term:
-                    counter = counter + 1
-            string_vec.append(counter)
-        return string_vec
+        Input: vector of tokens
+        Output: term frequency vector
+        """
+
+        self.vocabulary = np.array(self.vocabulary) 
+        sentence_vector = np.array(sentence_vector)
+
+        indexes = [np.where(x == self.vocabulary)[0][0] for x in sentence_vector]
+        result = np.zeros(self.vocabulary.shape)
+
+        for i in indexes:
+            result[i] += 1
+        
+        return result
 
 
 
@@ -127,45 +104,51 @@ class BagWords:
 
 
     def compute_matrix(self):
-        self.__X = []
-        # iterate over texts, if they are not list (aka not stemmed, stem them)
-        for i in range(len(self.__texts)):
-            if not isinstance(self.__texts[i], list):
-                self.__texts[i] = self.__str_2_vec(self.__texts[i])
-                self.__create_matrix_terms(self.__texts[i])
-        # now calculate the TF vector of each sentence given the complete token list
-        for line in self.__texts:
-            vec = self.__calculate_vec(line)
-            self.__X.append(vec)
-
-
-
-    # add a sentence to the matrix, this will compute the matrix again
-    def add_sentence(self, sentence, label = None):
-        cleaned = self.__clean_string(sentence)
-        self.__texts.append(cleaned)   
-        if label != None:
-            self.__y.append(label)
-        self.compute_matrix()
-
-
-
-    def print_matrix(self):
-        for i in self.__X:
-            print(i)
+        """
+        given all the sentences added, the bag of words will compute
+        the term frequency matrix
+        """
+        self.matrix = []
+        # add all sentences to vocabulary
+        for i in range(len(self.texts)):
+            if not isinstance(self.texts[i], list):
+                self.texts[i] = self.str_2_vec(self.texts[i])
+                self.create_vocabulary(self.texts[i])
         
+        # calculate matrix
+        for line in self.texts:
+            vec = self.calculate_vec(line)
+            self.matrix.append(vec)
 
 
-    def save(self):
-        return self.__X, self.__y
+    def add_sentence(self, sentence):
+        """
+        adds a sentence to the matrix
+        """
+        cleaned = self.clean_string(sentence)
+        self.texts.append(cleaned)
 
 
+    # TODO: function for TF-IDF
+        # ML - ue2
+
+    # TODO: function to calculate sentence similarity
+        # add sentence
+        # calculate matrix
+        # calculate every dot product, report highest
 
 if __name__ == "__main__":
     bag = BagWords("en")
-    bag.compute_matrix()
-    bag.print_matrix()
+    
+    texts = [
+        "I was going to the shop and saw a new car",
+        "my new car is ideal for going to the shop",
+        "my computer is less expensive than my car",
+        "my car is more expensive than my computer"
+    ]
+    for text in texts:
+        bag.add_sentence(text)
 
-    print("\n\n")
-    bag.add_sentence("sigarette", 0)
-    bag.print_matrix()
+    bag.compute_matrix()
+    for i in bag.matrix:
+        print(i)

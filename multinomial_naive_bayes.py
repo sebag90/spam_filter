@@ -4,31 +4,66 @@ import numpy as np
 class MultinomialNaiveBayes:
     
     def __init__(self):
-        self.feature_probs = {}
-        self.prior = {}
+        self.feature_probs = []
+        self.prior = []
+        self.classes = []
+        self.class_count = []
+        self.fitted = False
+        self.feature_count = []
+        self.n_features = 0
+        self.coef = []
+        self.intercept = []
 
 
     def fit(self, X, y, alpha=1):
+        if self.fitted == True:
+            self.feature_probs = []
+            self.prior = []
+            self.class_count = []
+            self.classes = []
+            self.feature_count = []
+            self.n_features = 0
+            self.coef = []
+            self.intercept = []
+        
         X = np.array(X)
         y = np.array(y)
+        
+        self.n_features = y.shape[0]
 
         classes, counts = np.unique(y, return_counts=True)
-        self.prior = dict(zip(classes, np.log(counts/y.shape[0])))
+        self.prior = np.log(counts/y.shape[0])
 
-        for cl in classes:
-            class_sum_vec = X[y==cl].sum(axis=0) 
-            added_alpha = (X.shape[1] * alpha)
-            class_total_sum = class_sum_vec.sum()
+        self.class_count = counts
+        self.classes = classes
+        
+        for cl in self.classes:
+            feature_count = X[y==cl].sum(axis=0) 
             
-            self.feature_probs[cl] = np.log((class_sum_vec + alpha) / (added_alpha + class_total_sum))
+            self.feature_count.append(feature_count)
+            
+            added_alpha = (X.shape[1] * alpha)
+            class_total_sum = feature_count.sum()
+            
+            self.feature_probs.append(np.log((feature_count + alpha) / (added_alpha + class_total_sum)))
+        
+        if len(self.classes) == 2:
+            self.coef = np.array([self.feature_probs[-1]])
+            self.intercept = np.array([self.prior[-1]])
+        else:
+            self.coef = self.feature_probs
+            self.intercept = self.prior
+            
+        
+        self.fitted = True
         
 
     def predict_probs(self, X):
         X = np.array(X)
         results = []
 
-        for cl in self.prior:
-            res = (self.feature_probs[cl] * X).sum(axis=1) + self.prior[cl]
+        for i in range(len(self.classes)):
+            res = (self.feature_probs[i] * X).sum(axis=1) + self.prior[i]
             results.append(res)
 
         results = np.column_stack(results)
@@ -38,7 +73,7 @@ class MultinomialNaiveBayes:
     def predict(self, X):
         X = np.array(X)
         results = self.predict_probs(X)
-        return np.argmax(results, axis=1)
+        return self.classes[np.argmax(results, axis=1)]
 
 
 if __name__ == "__main__":

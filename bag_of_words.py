@@ -113,7 +113,7 @@ class BagWords:
 
 
 
-    def compute_matrix(self):
+    def compute_matrix(self, process=False):
         """
         given all the sentences added, the bag of words will compute
         the term frequency matrix
@@ -125,7 +125,8 @@ class BagWords:
             if not isinstance(self.texts[i], list):
                 self.texts[i] = self.str_2_vec(self.texts[i])
                 self.create_vocabulary(self.texts[i])
-                #print_progress_bar(i+1, len(self.texts), prefix="Loading ", length=40)
+                if process == True:
+                    print_progress_bar(i+1, len(self.texts), prefix="Loading ", length=40)
          
         
         # calculate matrix
@@ -133,9 +134,10 @@ class BagWords:
         for text in self.texts:
             vec = self.calculate_vec(text)
             self.matrix.append(vec)
-            #print_progress_bar(j, len(self.texts), prefix="Indexing", length=40)
-            j += 1
-        #print()
+            if process == True:
+                print_progress_bar(j, len(self.texts), prefix="Indexing", length=40)
+                j += 1
+
         self.matrix = np.array(self.matrix)
 
 

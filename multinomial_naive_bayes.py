@@ -4,7 +4,7 @@ import numpy as np
 class MultinomialNaiveBayes:
     
     def __init__(self):
-        self.feature_probabilities = {}
+        self.feature_probs = {}
         self.prior = {}
 
 
@@ -17,10 +17,10 @@ class MultinomialNaiveBayes:
 
         for cl in classes:
             class_sum_vec = X[y==cl].sum(axis=0) 
-            added_alpha = (X.shape[1] * alpha )
+            added_alpha = (X.shape[1] * alpha)
             class_total_sum = class_sum_vec.sum()
             
-            self.feature_probabilities[cl] = np.log((class_sum_vec + alpha) / ( added_alpha + class_total_sum))
+            self.feature_probs[cl] = np.log((class_sum_vec + alpha) / ( added_alpha + class_total_sum))
         
 
     def predict_probs(self, X):
@@ -28,7 +28,7 @@ class MultinomialNaiveBayes:
         results = []
 
         for cl in self.prior:
-            res = (self.feature_probabilities[cl] * X).sum(axis=1) + self.prior[cl]
+            res = (self.feature_probs[cl] * X).sum(axis=1) + self.prior[cl]
             results.append(res)
 
         results = np.column_stack(results)

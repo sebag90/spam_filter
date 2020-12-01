@@ -20,7 +20,7 @@ class MultinomialNaiveBayes:
             added_alpha = (X.shape[1] * alpha)
             class_total_sum = class_sum_vec.sum()
             
-            self.feature_probs[cl] = np.log((class_sum_vec + alpha) / ( added_alpha + class_total_sum))
+            self.feature_probs[cl] = np.log((class_sum_vec + alpha) / (added_alpha + class_total_sum))
         
 
     def predict_probs(self, X):

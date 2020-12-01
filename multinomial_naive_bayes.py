@@ -16,7 +16,7 @@ class MultinomialNaiveBayes:
 
 
     def fit(self, X, y, alpha=1):
-        if self.fitted == True:
+        if self.fitted is True:
             self.feature_probs = []
             self.prior = []
             self.class_count = []
@@ -36,7 +36,7 @@ class MultinomialNaiveBayes:
         self.classes = classes
         
         for cl in self.classes:
-            feature_count = X[y==cl].sum(axis=0)          
+            feature_count = X[y == cl].sum(axis=0)
             added_alpha = (X.shape[1] * alpha)
             class_total_sum = feature_count.sum()
             feature_prob = np.log((feature_count + alpha) / (added_alpha + class_total_sum))

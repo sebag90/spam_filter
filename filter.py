@@ -1,4 +1,4 @@
-import bag_of_words as bw
+import BoW as bw
 import multinomial_naive_bayes as mnb
 import json
 import os
@@ -14,7 +14,7 @@ def retrieve_texts(path):
             my_string = file.read()
             texts.append(my_string)
     return texts
-                
+ 
 
 def main():
 

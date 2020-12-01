@@ -29,31 +29,27 @@ class MultinomialNaiveBayes:
         X = np.array(X)
         y = np.array(y)
         
-        self.n_features = y.shape[0]
-
         classes, counts = np.unique(y, return_counts=True)
-        self.prior = np.log(counts/y.shape[0])
-
+        self.n_features = y.shape[0]
+        self.prior = np.log(counts/self.n_features)
         self.class_count = counts
         self.classes = classes
         
         for cl in self.classes:
-            feature_count = X[y==cl].sum(axis=0) 
-            
-            self.feature_count.append(feature_count)
-            
+            feature_count = X[y==cl].sum(axis=0)          
             added_alpha = (X.shape[1] * alpha)
             class_total_sum = feature_count.sum()
-            
-            self.feature_probs.append(np.log((feature_count + alpha) / (added_alpha + class_total_sum)))
+            feature_prob = np.log((feature_count + alpha) / (added_alpha + class_total_sum))
+            self.feature_probs.append(feature_prob)
+            self.feature_count.append(feature_count)
         
         if len(self.classes) == 2:
             self.coef = np.array([self.feature_probs[-1]])
             self.intercept = np.array([self.prior[-1]])
+
         else:
             self.coef = self.feature_probs
             self.intercept = self.prior
-            
         
         self.fitted = True
         

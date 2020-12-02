@@ -4,6 +4,10 @@ import numpy as np
 class MultinomialNaiveBayes:
     
     def __init__(self):
+        self.initialize()
+
+
+    def initialize(self):
         self.feature_probs = []
         self.prior = []
         self.classes = []
@@ -17,14 +21,7 @@ class MultinomialNaiveBayes:
 
     def fit(self, X, y, alpha=1):
         if self.fitted is True:
-            self.feature_probs = []
-            self.prior = []
-            self.class_count = []
-            self.classes = []
-            self.feature_count = []
-            self.n_features = 0
-            self.coef = []
-            self.intercept = []
+            self.initialize()
         
         X = np.array(X)
         y = np.array(y)

@@ -20,6 +20,11 @@ class MultinomialNaiveBayes:
 
 
     def fit(self, X, y, alpha=1):
+        """
+        given an input x and a label vector x, this function trains
+        the model calculating the prior and the feature probabilities
+        to predict future instances
+        """
         if self.fitted is True:
             self.initialize()
         
@@ -52,6 +57,11 @@ class MultinomialNaiveBayes:
         
 
     def predict_probs(self, X):
+        """
+        given an input x the function outputs a matrix with one column for every
+        class known to the classifier and predicts the probability of every
+        instance in x to be assigned to each class
+        """
         X = np.array(X)
         results = []
 
@@ -64,6 +74,10 @@ class MultinomialNaiveBayes:
 
 
     def predict(self, X):
+        """
+        This function calls the predict_probs() function and translate the probabilities
+        in actual labels returning the label corresponding to the highest probability
+        """
         X = np.array(X)
         results = self.predict_probs(X)
         return self.classes[np.argmax(results, axis=1)]

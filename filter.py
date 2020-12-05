@@ -1,5 +1,5 @@
 import BoW as bw
-import multinomial_naive_bayes as mnb
+import MNB as mnb
 import json
 import os
 

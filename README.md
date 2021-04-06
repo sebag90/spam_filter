@@ -7,11 +7,22 @@ in results.json
 
 ## Dependencies:
 - Natural Language Toolkit: https://www.nltk.org/
-- numpy: https://numpy.org/
 
+## Requirements:
+* all requirements are saved in envoroment.yml
 
-### Install:
-pip3 install -r requirements.txt
+## Quickstart:
+* install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+* cd into the root directory of this repository
+* create a new environment from the environment.yml file
+```
+conda env create -f environment.yml
+```
+
+* activate the new environment
+```
+conda activate spam
+```
 
 
 ### Stopwords:

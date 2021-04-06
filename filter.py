@@ -13,7 +13,7 @@ def retrieve_texts(path):
             my_string = file.read()
             texts.append(my_string)
     return texts
- 
+
 
 def main():
 
@@ -23,7 +23,7 @@ def main():
     train_data = ham + spam
 
     bag = bw.BagWords("en")
-    
+
     for text in train_data:
         bag.add_sentence(text)
 
@@ -31,16 +31,16 @@ def main():
 
     for new in to_classify:
         bag.add_sentence(new)
-       
+
     bag.compute_matrix()
 
     X_train = bag.matrix[:len(y_train)]
     X = bag.matrix[len(y_train):]
-    
+
     nb = mnb.MultinomialNaiveBayes()
     nb.fit(X_train, y_train)
     results = nb.predict(X)
-    
+
     output = {
         "spam": [],
         "not spam": []
@@ -53,8 +53,7 @@ def main():
             output["spam"].append(text)
 
     with open("results.json", "w", encoding="utf-8") as file:
-            json.dump(output, file, ensure_ascii=False, indent=4)
-
+        json.dump(output, file, ensure_ascii=False, indent=4)
 
 
 if __name__ == "__main__":

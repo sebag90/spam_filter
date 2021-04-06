@@ -1,0 +1,8 @@
+name: spam
+channels:
+  - defaults
+dependencies:
+  - python=3.8.5
+  - nltk
+  - numpy
+

@@ -1,0 +1,3 @@
+[submodule "bag_of_words"]
+	path = bag_of_words
+	url = git@github.com:sebag90/bag_of_words.git

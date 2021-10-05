@@ -1,4 +1,4 @@
-import BoW as bw
+import bag_of_words.BoW as bw
 import MNB as mnb
 import json
 import os
@@ -16,14 +16,20 @@ def retrieve_texts(path):
 
 
 def main():
+    # collect stopwords
+    with open("stopwords-iso.json") as stopwords:
+        stopwords = json.load(stopwords)
 
+    stopwords = stopwords["en"]
+
+    # load dataset
     ham = retrieve_texts("input/ham")
     spam = retrieve_texts("input/spam")
     y_train = [0 for i in ham] + [1 for j in spam]
     train_data = ham + spam
 
-    bag = bw.BagWords("en")
-
+    # add sentences to BOW-model
+    bag = bw.BagWords("en", stopwords)
     for text in train_data:
         bag.add_sentence(text)
 
@@ -34,6 +40,7 @@ def main():
 
     bag.compute_matrix()
 
+    # pass matrix to MNB classifier
     X_train = bag.matrix[:len(y_train)]
     X = bag.matrix[len(y_train):]
 
